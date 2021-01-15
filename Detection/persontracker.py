@@ -14,6 +14,7 @@ class PersonTracker():
         self.wearing_mask = OrderedDict()
 
     def register(self, centroid, soc_dist, box, mask_box, wearing_mask):
+        # Registering every new user in the frame with their unique information stored
         self.objects[self.nextObjectID] = centroid
         self.social_dist[self.nextObjectID] = soc_dist
         self.disappeared[self.nextObjectID] = 0
@@ -23,6 +24,7 @@ class PersonTracker():
         self.nextObjectID += 1
     
     def deregister(self, objectID):
+        # Removing any users out of frame too long
         del self.objects[objectID]
         del self.disappeared[objectID]
         del self.social_dist[objectID]
@@ -31,7 +33,7 @@ class PersonTracker():
         del self.wearing_mask[objectID]
 
     def update(self, rects, soc_dist, mask_box, wearing_mask):
-        if len(rects) == 0:
+        if len(rects) == 0: #removing all users if noone detected in frame
             for objectID in list(self.disappeared.keys()):
                 self.disappeared[objectID] += 1
                 if self.disappeared[objectID] > self.maxDisappeared:
@@ -40,17 +42,19 @@ class PersonTracker():
             return self.objects
 
         inputCentroids = np.zeros((len(rects), 2), dtype="int")
-
+        # Calculating centroids
         for (i, (startX, startY, endX, endY)) in enumerate(rects):
             cX = int((startX + endX) / 2.0)
             cY = int((startY + endY) / 2.0)
             inputCentroids[i] = (cX, cY)
 
+        # Registering any new users if none are registered
         if len(self.objects) == 0:
             for i in range(0, len(inputCentroids)):
                 self.register(inputCentroids[i], soc_dist[i], rects[i], mask_box[i], wearing_mask[i])
 
         else:
+            # Updating and matching users in frame based on centroid position
             objectIDs = list(self.objects.keys())
             objectCentroids = list(self.objects.values())
 
@@ -64,7 +68,8 @@ class PersonTracker():
             for (row, col) in zip(rows, cols):
                 if row in usedRows or col in usedCols:
                     continue
-
+                
+                # Updating users information based on tracking
                 objectID = objectIDs[row]
                 self.mask_box[objectID] = mask_box[col]
                 self.bbox[objectID] = rects[col]
@@ -93,6 +98,7 @@ class PersonTracker():
 
         return self.objects
 
+    # Getter functions
     def get_soc_dist(self, objectID):
         return self.social_dist[objectID]
 
