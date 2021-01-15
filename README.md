@@ -1,7 +1,16 @@
 Covid Guidelines Detection is an open source repository that provides object tracking, social distance detection, and mask detection.
 
 ## Results
+<img src="images/outpy.gif" width="750">
 
+Above the model is tracking to see if everyone is social distancing, wearing a face mask, and tracking each person.<br>
+
+For the social distancing, the bounding boxes around the person will turn red for those who aren't and stay green for those who are<br>
+
+For the Face Mask Detection, the bounding boxes are located around each persons face. A white box indicates that it is unknown if the person is wearing a face mask,
+the green box indicates the person is wearing a face mask, and the red box indicates the person is not wearing a face mask.
+
+Each person has an unique id that tracks their information throughout the frame. The tracking algorithm can find issues with occlusion, but will quickly correct itself afterwards. Each unique id is specified by the green dot in the center of each person.
 ## Installation
 To use the covid guidelines detection software is simple. All you need to do is clone this repository and download the required modules:
 ```
