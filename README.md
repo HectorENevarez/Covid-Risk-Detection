@@ -1,4 +1,4 @@
-Covid Guidelines Detection is an open source repository that provides object tracking, social distance detection, and mask detection.
+Covid Risk Detection is an open source repository that provides object tracking, social distance detection, and mask detection.
 
 ## Results
 <img src="images/outpy.gif" width="750">
