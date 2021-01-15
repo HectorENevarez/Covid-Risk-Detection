@@ -20,9 +20,19 @@ The installation of tensorflow and the requirements text might be different base
 Once all the required modules are installed properly, the model files need to be downloaded. YOLOV3 was used for the object detection and a custom model was used 
 for the face mask detection. All the models need to be downloaded and placed in the ```models``` directory. The following models must be downloaded and added to the directory:
 - [YOLOV3](https://pjreddie.com/media/files/yolov3.weights) **Clicking the link will download the weights**
-- [Face Mask Detection](https://www.dropbox.com/sh/ufidzbijm0drzsf/AAArVo4sx4s1Ola1hcjvgIwCa?dl=0)
-
-to use the software you'll need video's to test the software on. If the user has no video available, they can download
+- [Face Mask Detection](https://www.dropbox.com/sh/31i8o4cc2p89oqw/AADO4pm50JzxGdwGUNCKngVBa?dl=0)
+  * Unzip and add entire folder into ```models``` directory
+  
+After downloading and adding the files to their location, the ```models``` directory should look like so:
+```
+.
+└── models
+    ├── mask_detection
+    ├── coco.names
+    ├── yolov3.cfg
+    └── yolov3.weights
+```
+To use the software you'll need video's to test the software on. If the user has no video available, they can download
 a traditional test video for object detection:
 ```
 pip install youtube_dl
@@ -34,3 +44,23 @@ In order to use the software, a video must be specified. Using that recently dow
 ```
 python covid_tracker.py -v street.mp4
 ```
+Assuming everything else is correctly set up, this command should run the entire software correctly.
+
+#### Software features
+To save the video use the ```[-s save]``` flag
+```
+python covid_tracker.py -v street.mp4 -s True
+```
+
+To only use the social distancing tool use the ```[-sd socialdistance]``` flag
+```
+python covid_tracker.py -v street.mp4 -sd True
+```
+
+To only use the face mask detection tool use the ```[-fm facemask]``` flag
+```
+python covid_tracker.py -v street.mp4 -fm True
+```
+
+## Face Mask Detection Model
+The Face Mask Detection model was trained on the following [model](https://github.com/HectorENevarez/guidelines_detection/blob/main/Training_Model/face_mask_detection.ipynb). This model was trained using transfer learning from the [BiT](https://blog.tensorflow.org/2020/05/bigtransfer-bit-state-of-art-transfer-learning-computer-vision.html). Any user with an existing dataset can train their own Face Mask Detection model with the script provided.
