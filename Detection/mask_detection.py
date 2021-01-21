@@ -1,59 +1,39 @@
+from tensorflow import keras
+import tensorflow as tf
 import numpy as np
 import cv2
+import os
 
-def detect_persons(frame, net, ln, pid=0):
-    HEIGHT_F, WIDTH_F, CHANNEL_F = frame.shape
-    MIN_CONFIDENCE, NMS_THRESHOLD = 0.7, 0.3
+def preprocess_image(image):
+  image = np.array(image)
+  img_reshaped = tf.reshape(image, [1, image.shape[0], image.shape[1], image.shape[2]])
+  image = tf.image.convert_image_dtype(img_reshaped, tf.float32, name="images")  
+  return image
 
-    # Retrieving detected points
-    blob = cv2.dnn.blobFromImage(frame, 0.00392, (320, 320), (0, 0, 0), True, crop=False)
-    net.setInput(blob)
-    outs = net.forward(ln)
+def mask_detect(mask_points, net, frame):
+    wearing_mask = "unknown"
+    
+    (x, y, w, h) = mask_points #Retrieve mask points
+    roi_face = frame[int(y - 2 * w / 5):int(y + 3 * w / 5), x:(x + w)] #Cropping face
 
-    detections = []
-    boxes = []
-    boxes_mask = []
-    centroids = []
-    confidences = []
+    HEIGHT, WIDTH = roi_face.shape[:2]
+    if HEIGHT >= 32 and WIDTH >= 32: #Only detecting face images 32X32 or larger
+        save_loc = os.path.join("./mask_images", '_head_shot.jpg')
+        cv2.imwrite(save_loc, roi_face)
 
-    for out in outs:
-        for detection in out:
-            scores = detection[5:]
-            classID = np.argmax(scores)
-            confidence = scores[classID]
+        pic = cv2.imread(save_loc)
+        pic = cv2.cvtColor(pic,cv2.COLOR_BGR2RGB)
+        pic = cv2.resize(pic,(128,128))
 
-            if classID == pid and confidence > MIN_CONFIDENCE:
-                center_x = int(detection[0] * WIDTH_F) #Obtaining center position relative to window size
-                center_y = int(detection[1] * HEIGHT_F)
+        pic = preprocess_image(pic)
+        prediction = np.argmax(net.predict(pic))
 
-                w = int(detection[2] * WIDTH_F)
-                h = int(detection[3] * HEIGHT_F)
-                w_mask = int(detection[2] * WIDTH_F * .75)
-                h_mask = int(detection[3] * HEIGHT_F * .75)
+        if prediction == 0:
+            wearing_mask = "nomask"
+        elif prediction == 1:
+            wearing_mask = "mask"
+        else:
+            wearing_mask = "unknown"
+            
 
-                x = int(center_x - (w / 2))
-                y = int(center_y - (h / 2))
-                x_mask = int(center_x - (w_mask / 2))
-                y_mask = int(center_y - (h_mask / 2))
-
-                boxes.append([x, y, w, h])
-                boxes_mask.append([x_mask, y_mask, w_mask, h_mask])
-                centroids.append((center_x, center_y))
-                confidences.append(float(confidence))
-                
-                
-
-    index = cv2.dnn.NMSBoxes(boxes, confidences, MIN_CONFIDENCE, NMS_THRESHOLD)
-
-    if len(index) > 0:
-        for i in index.flatten():
-            (x, y) = (boxes[i][0], boxes[i][1])
-            (w, h) = (boxes[i][2], boxes[i][3])
-
-            (x_mask, y_mask) = (boxes_mask[i][0], boxes_mask[i][1])
-            (w_mask, h_mask) = (boxes_mask[i][2], boxes_mask[i][3])
-
-            det = ((x_mask, y_mask, w_mask, h_mask), (x, y, w + x, h + y), centroids[i])
-            detections.append(det)
-
-    return detections
+    return wearing_mask

@@ -45,7 +45,7 @@ To use the software you'll need video's to test the software on. If the user has
 a traditional test video for object detection:
 ```
 pip install youtube_dl
-youtube-dl https://www.youtube.com/watch?v=pk96gqasGBQ -o streets.mp4
+youtube-dl https://www.youtube.com/watch?v=pk96gqasGBQ -o street.mp4
 ```
 This will download [this](https://www.youtube.com/watch?v=pk96gqasGBQ) youtube video that works for testing. <br>
 
